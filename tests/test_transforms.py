@@ -3,7 +3,9 @@ from decimal import Decimal
 
 import pytest
 
-from bank_deposits import transforms as T
+pytest.importorskip("pyspark")  # skip locally if PySpark isn't installed; CI installs it
+
+from bank_deposits import transforms as T  # noqa: E402
 
 
 def test_clean_customers_standardises_fields(spark):

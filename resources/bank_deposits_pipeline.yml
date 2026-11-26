@@ -1,0 +1,20 @@
+# Lakeflow Declarative Pipeline (formerly DLT) that builds bronze -> silver -> gold.
+resources:
+  pipelines:
+    bank_deposits_pipeline:
+      name: bank_deposits_medallion_pipeline
+      catalog: ${var.catalog}
+      schema: ${var.schema_prefix}silver # default schema; tables use fully qualified names
+      serverless: true
+      channel: CURRENT
+      continuous: false
+      root_path: ../src # added to sys.path so pipeline files can `import bank_deposits`
+      libraries:
+        - glob:
+            include: ../src/pipelines/**
+      configuration:
+        bank.catalog: ${var.catalog}
+        bank.bronze_schema: ${var.schema_prefix}bronze
+        bank.silver_schema: ${var.schema_prefix}silver
+        bank.gold_schema: ${var.schema_prefix}gold
+        bank.landing_path: /Volumes/${var.catalog}/${var.schema_prefix}bronze/landing

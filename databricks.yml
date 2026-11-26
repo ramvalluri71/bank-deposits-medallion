@@ -1,0 +1,49 @@
+# Databricks Asset Bundle: bank deposits medallion lakehouse.
+# Docs: https://docs.databricks.com/dev-tools/bundles/
+bundle:
+  name: bank_deposits_medallion
+  databricks_cli_version: ">=0.250.0"
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog that holds the bronze/silver/gold schemas (must already exist).
+    default: main
+  schema_prefix:
+    description: Prefix for the bronze/silver/gold schema names (used to isolate developers).
+    default: ""
+  generate_sample_data:
+    description: '"true" to have the job land synthetic files; set "false" once real source feeds arrive.'
+    default: "true"
+  schedule_pause_status:
+    description: UNPAUSED or PAUSED for the daily job schedule.
+    default: UNPAUSED
+
+targets:
+  # Personal sandbox. Uses your local CLI profile for auth (`databricks auth login`).
+  # Development mode prefixes resource names with [dev <user>] and pauses schedules.
+  dev:
+    mode: development
+    default: true
+    variables:
+      schema_prefix: ${workspace.current_user.short_name}_
+
+  # Deployed by GitHub Actions on every merge to main, as a service principal.
+  staging:
+    mode: production
+    workspace:
+      host: https://REPLACE-WITH-STAGING-WORKSPACE.cloud.databricks.com # TODO
+    variables:
+      catalog: bank_staging
+      schedule_pause_status: PAUSED
+
+  # Deployed by GitHub Actions after staging succeeds and a reviewer approves.
+  prod:
+    mode: production
+    workspace:
+      host: https://REPLACE-WITH-PROD-WORKSPACE.cloud.databricks.com # TODO
+    variables:
+      catalog: bank_prod
+      generate_sample_data: "false"

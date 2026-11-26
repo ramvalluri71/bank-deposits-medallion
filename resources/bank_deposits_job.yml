@@ -1,0 +1,57 @@
+# Orchestration job: set up Unity Catalog objects -> (optionally) land sample files -> refresh pipeline.
+resources:
+  jobs:
+    bank_deposits_job:
+      name: bank_deposits_medallion_job
+      max_concurrent_runs: 1
+
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?" # daily 06:00
+        timezone_id: UTC
+        pause_status: ${var.schedule_pause_status}
+
+      parameters:
+        - name: batch
+          default: "1" # run with batch=2,3,... to simulate later days (address changes -> SCD2)
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+
+      tasks:
+        - task_key: setup_unity_catalog
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/jobs/setup_unity_catalog.py
+            parameters:
+              - --catalog=${var.catalog}
+              - --schema-prefix=${var.schema_prefix}
+
+        - task_key: should_generate_sample_data
+          depends_on:
+            - task_key: setup_unity_catalog
+          condition_task:
+            op: EQUAL_TO
+            left: "${var.generate_sample_data}"
+            right: "true"
+
+        - task_key: generate_sample_data
+          depends_on:
+            - task_key: should_generate_sample_data
+              outcome: "true"
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/jobs/generate_sample_data.py
+            parameters:
+              - --landing-path=/Volumes/${var.catalog}/${var.schema_prefix}bronze/landing
+              - --batch={{job.parameters.batch}}
+
+        - task_key: refresh_medallion_pipeline
+          depends_on:
+            - task_key: setup_unity_catalog
+            - task_key: generate_sample_data
+          run_if: NONE_FAILED # still runs when sample generation is skipped
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.bank_deposits_pipeline.id}
+            full_refresh: false

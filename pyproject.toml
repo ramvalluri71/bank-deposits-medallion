@@ -1,0 +1,22 @@
+[project]
+name = "bank_deposits_medallion"
+version = "0.1.0"
+description = "Medallion (bronze/silver/gold) lakehouse for bank deposits on Databricks"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Pipeline source files get `spark` injected by the Lakeflow runtime.
+"src/pipelines/*.py" = ["F821"]
+# Job entry points adjust sys.path before importing the local package.
+"src/jobs/*.py" = ["E402"]

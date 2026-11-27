@@ -34,7 +34,7 @@ targets:
   staging:
     mode: production
     workspace:
-      host: https://REPLACE-WITH-STAGING-WORKSPACE.cloud.databricks.com # TODO
+      host: https://dbc-6e92668a-d107.cloud.databricks.com
     variables:
       catalog: bank_staging
       schedule_pause_status: PAUSED
@@ -43,7 +43,7 @@ targets:
   prod:
     mode: production
     workspace:
-      host: https://REPLACE-WITH-PROD-WORKSPACE.cloud.databricks.com # TODO
+      host: https://dbc-6e92668a-d107.cloud.databricks.com # same workspace as staging for now; catalogs keep data apart
     variables:
       catalog: bank_prod
       generate_sample_data: "false"

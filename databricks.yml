@@ -35,6 +35,7 @@ targets:
     mode: production
     workspace:
       host: https://dbc-6e92668a-d107.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: bank_staging
       schedule_pause_status: PAUSED
@@ -44,6 +45,7 @@ targets:
     mode: production
     workspace:
       host: https://dbc-6e92668a-d107.cloud.databricks.com # same workspace as staging for now; catalogs keep data apart
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: bank_prod
       generate_sample_data: "false"

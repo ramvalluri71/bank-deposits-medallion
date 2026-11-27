@@ -2,7 +2,7 @@
 resources:
   jobs:
     bank_deposits_job:
-      name: bank_deposits_medallion_job
+      name: bank_deposits_medallion_job_${bundle.target}
       max_concurrent_runs: 1
 
       schedule:

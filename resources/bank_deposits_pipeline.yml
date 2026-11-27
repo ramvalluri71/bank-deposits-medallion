@@ -2,7 +2,7 @@
 resources:
   pipelines:
     bank_deposits_pipeline:
-      name: bank_deposits_medallion_pipeline
+      name: bank_deposits_medallion_pipeline_${bundle.target}
       catalog: ${var.catalog}
       schema: ${var.schema_prefix}silver # default schema; tables use fully qualified names
       serverless: true
